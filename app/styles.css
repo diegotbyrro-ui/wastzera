@@ -80,3 +80,11 @@ body{background:radial-gradient(ellipse at 92% 7%,#442c6a40,transparent 30%),rad
 .draw-console .wheel-hub small{font-size:clamp(5px,1.3cqw,8px)}
 @media(max-width:1000px){.draw-console-grid{grid-template-columns:minmax(0,1fr);gap:24px}.draw-console-grid>aside{padding-top:12px}}
 @media(max-width:700px){.draw-console-grid{padding:16px;gap:18px}.draw-console .draw-stage{padding-bottom:12px}.draw-console .wheel-premium{--wheel-size:min(440px,calc(100cqw - 24px));margin:20px auto}.draw-console .wheel-caption strong{font-size:18px;overflow-wrap:anywhere}}
+
+/* Central da roleta permanente e nomes sem amostragem. */
+.draw-console-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 24px;background:linear-gradient(100deg,#2f2145,#121e2b);font-weight:700}
+.draw-console-heading small{font-size:10px;color:var(--muted);font-weight:400}
+.named-sector-dense{line-height:1;filter:none}
+@media(max-width:700px){.draw-console-heading{padding:18px 16px;flex-direction:column;align-items:flex-start;gap:7px}}
+
+.draw-selector{display:flex;flex-direction:column;gap:10px;margin:24px 0 0;font-size:13px;font-weight:700}.draw-selector select{width:100%;font-size:13px;min-height:48px}.draw-reset{margin-top:24px;padding:20px;border:1px solid #7a4b66;border-radius:8px;background:#251725}.draw-reset h4{margin:0 0 12px}.draw-reset p,.draw-history p{font-size:12px;line-height:1.7}.draw-reset textarea{min-height:90px}.draw-history{margin-top:24px}.draw-history article{border-top:1px solid var(--border);padding:14px 0}.draw-history small{color:var(--muted)}
