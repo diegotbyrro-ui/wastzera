@@ -1,0 +1,6 @@
+import {createHash} from 'node:crypto';
+import {unlockSchema,normalizeCode} from '@/lib/validation';
+import {getSupabaseAdmin} from '@/lib/supabase';
+import {readJsonWithLimit,timingSafeStringEqual,checkRateLimit,getClientIp} from '@/lib/security';
+import {guard,json,failure} from '@/lib/http';
+export async function POST(req:Request){const blocked=guard(req,'unlock',8);if(blocked)return blocked;if(!checkRateLimit(`unlock-hour:${getClientIp(req)}`,40,3600000).allowed)return json({error:'Limite de tentativas atingido. Tente mais tarde.'},429);try{const p=unlockSchema.safeParse(await readJsonWithLimit(req,2048));if(!p.success)return json({error:'Informe o código completo encontrado no vídeo.'},400);const {data:r,error}=await getSupabaseAdmin().from('wz_raffles').select('id,status,ends_at,capacity,entry_count,puzzle_hash').eq('id',p.data.raffle_id).maybeSingle();if(error)throw error;if(!r||r.status!=='open'||new Date(r.ends_at).getTime()<=Date.now()||r.entry_count>=r.capacity)return json({error:'Este sorteio não está recebendo inscrições.'},409);const hash=createHash('sha256').update(normalizeCode(p.data.code)).digest('hex');if(!r.puzzle_hash||!timingSafeStringEqual(hash,r.puzzle_hash))return json({error:'As peças ainda não encaixaram. Confira as quatro pistas e a ordem no vídeo.'},400);return json({ok:true})}catch(e){return failure(e)}}

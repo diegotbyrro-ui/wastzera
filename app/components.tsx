@@ -1,0 +1,4 @@
+import Link from 'next/link';
+export function Mark(){return <span className="mark official-mark" aria-hidden="true"><img src="/brand/wastzera-white.png" alt="" width="56" height="49"/></span>}
+export function Header(){return <header className="header wrap"><Link className="brand" href="/"><Mark/><span>WASTZERA<small>COMMUNITY DROPS</small></span></Link><nav><Link className="admin-link" href="/admin">ADMIN ↗</Link><Link href="/#sorteios">Sorteios</Link><Link href="/#como-funciona">Como funciona</Link><Link className="twitch" href="/#como-funciona">Encontrar o código ↗</Link></nav></header>}
+export function Footer(){return <footer className="wrap footer"><span className="footer-brand"><Mark/><span>WASTZERA <small>Feito para a tropa.</small></span></span><div><Link href="/privacidade">Privacidade</Link><Link href="/admin">Área administrativa ↗</Link></div></footer>}

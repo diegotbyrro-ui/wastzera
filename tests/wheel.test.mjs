@@ -1,0 +1,8 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {wheelSegments,winningAngle} from '../lib/wheel.ts';
+test('roleta cobre todos os números sem lacunas e aponta para o intervalo vencedor',()=>{for(const count of [1,2,11,12,13,17,100,501,100000]){const ranges=wheelSegments(count);assert.equal(ranges[0].from,1);assert.equal(ranges.at(-1).to,count);for(let i=1;i<ranges.length;i++)assert.equal(ranges[i-1].to+1,ranges[i].from);for(const ticket of [1,Math.ceil(count/2),count]){const sector=Math.floor(winningAngle(count,ticket)/(360/ranges.length));assert.ok(ticket>=ranges[sector].from&&ticket<=ranges[sector].to)}}});
+
+import {visiblePeople,namedWinningAngle} from '../lib/wheel.ts';
+test('roleta de nomes preserva o vencedor, inclusive em listas grandes',()=>{const people=Array.from({length:10001},(_,i)=>({ticket:i+1,label:'Participante '+(i+1)}));for(const winner of [1,34,5647,10001]){const shown=visiblePeople(people,winner);assert.equal(shown.length,16);assert.equal(new Set(shown.map(x=>x.ticket)).size,16);assert.ok(shown.some(x=>x.ticket===winner));const sector=Math.floor(namedWinningAngle(shown,winner)/(360/shown.length));assert.equal(shown[sector].ticket,winner)}});
+test('nomes iguais continuam sendo participações distintas',()=>{const people=[{ticket:1,label:'Maria S.'},{ticket:2,label:'Maria S.'}];assert.equal(visiblePeople(people).length,2);assert.equal(namedWinningAngle(people,1),90);assert.equal(namedWinningAngle(people,2),270)});
