@@ -19,7 +19,7 @@ export default function DrawConsole({raffle,selection,onBusyChange}:{raffle:Raff
   const [error,setError]=useState('');
   const [result,setResult]=useState<Result|null>(null);
   const [history,setHistory]=useState<History[]>([]);
-  const [reason,setReason]=useState('');
+  
   const [settled,setSettled]=useState(false);
   const [animateResult,setAnimateResult]=useState(false);
   const [search,setSearch]=useState('');
@@ -52,7 +52,7 @@ export default function DrawConsole({raffle,selection,onBusyChange}:{raffle:Raff
     if(drawPending.current||loading||busy||!loaded||!people.length)return;
     if(!window.confirm('Girar a roleta e registrar o ganhador?'))return;
     drawPending.current=true;setBusy(true);setError('');
-    if(raffle.prize_kind==='skin')playMusic();
+    playMusic();
     try {
       const response=await fetch(`/api/admin/raffles/${raffle.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'draw'})});
       const data=await response.json();
@@ -61,16 +61,15 @@ export default function DrawConsole({raffle,selection,onBusyChange}:{raffle:Raff
       setAnimateResult(true);setSettled(false);setResult(data);
     } catch(e){setError(e instanceof Error?e.message:'Falha ao sortear.');drawPending.current=false;setBusy(false);stopMusic()}
   }
-  async function reset(e:React.FormEvent<HTMLFormElement>){
-    e.preventDefault();
-    if(!result||drawPending.current||busy||reason.trim().length<10)return;
-    if(!window.confirm('Desclassificar este ganhador e liberar um novo giro? O motivo e o resultado anterior ficarão no histórico, e essa inscrição será excluída dos próximos giros deste sorteio.'))return;
+  async function reset(){
+
+    if(!result||drawPending.current||busy||loading)return;
     setBusy(true);setError('');stopMusic();
     try {
-      const response=await fetch(`/api/admin/raffles/${raffle.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset',draw_id:result.draw_id,reason:reason.trim()})});
+      const response=await fetch(`/api/admin/raffles/${raffle.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset',draw_id:result.draw_id,reason:'Reset manual pelo administrador.'})});
       const data=await response.json();
       if(!response.ok)throw new Error(data.error||'Não foi possível desclassificar.');
-      setResult(null);setSettled(false);setAnimateResult(false);setReason('');setLoaded(false);
+      setResult(null);setSettled(false);setAnimateResult(false);setLoaded(false);
       await load();router.refresh();
     } catch(e){setError(e instanceof Error?e.message:'Falha ao desclassificar.')}
     finally{setBusy(false)}
@@ -96,15 +95,10 @@ export default function DrawConsole({raffle,selection,onBusyChange}:{raffle:Raff
           <button className="ghost" disabled={loading||busy} onClick={()=>void load()}>Atualizar lista ↻</button>
           <button className="button draw-button" disabled={busy||!loaded||loading||!people.length||raffle.status!=='closed'||Boolean(result)} onClick={draw}>{busy?'Processando…':result||raffle.status==='drawn'?'Sorteio realizado':'Girar roleta e sortear ✳'}</button>
         </div>
-        {raffle.prize_kind==='skin'&&<DrawMusic playing={musicPlaying} audioRef={audioRef} audioError={audioError} onPlay={playMusic} onStop={stopMusic} onPlayingChange={setMusicPlaying} onError={()=>setAudioError('Não foi possível carregar o áudio.')}/>}
+        <DrawMusic playing={musicPlaying} audioRef={audioRef} audioError={audioError} onPlay={playMusic} onStop={stopMusic} onPlayingChange={setMusicPlaying} onError={()=>setAudioError('Não foi possível carregar o áudio.')}/>
         {raffle.status==='open'&&<p>Encerre as inscrições para liberar o sorteio.</p>}
-        {result&&settled&&<form className="draw-reset stack" onSubmit={reset}>
-          <h4>Resetar para novo sorteio</h4>
-          <p>Se o ganhador não cumprir as regras, informe o motivo. A inscrição será desclassificada e o próximo giro usará os demais participantes elegíveis.</p>
-          <label>Motivo da desclassificação<textarea value={reason} onChange={e=>setReason(e.target.value)} minLength={10} maxLength={1000} required placeholder="Informe qual regra não foi cumprida."/></label>
-          <button className="ghost" disabled={busy||loading||reason.trim().length<10}>Desclassificar e liberar novo giro</button>
-        </form>}
-        {history.length>0&&<div className="draw-history"><h4>Histórico de desclassificações</h4>{history.map(h=><article key={h.id}><b>{h.original_draw.winner_alias} · #{h.original_draw.winner_ticket}</b><p>{h.reason}</p><small>{new Date(h.invalidated_at).toLocaleString('pt-BR',{timeZone:'America/Fortaleza'})}</small></article>)}</div>}
+        {result&&settled&&<div className="draw-reset"><button type="button" className="ghost" disabled={busy||loading} onClick={()=>void reset()}>Resetar sorteio</button></div>}
+        {history.length>0&&<div className="draw-history"><h4>Histórico de desclassificações</h4>{history.map(h=><article key={h.id}><b>{h.original_draw.winner_alias} · #{h.original_draw.winner_ticket}</b><small>{new Date(h.invalidated_at).toLocaleString('pt-BR',{timeZone:'America/Fortaleza'})}</small></article>)}</div>}
       </aside>
     </div>
   </section>;
