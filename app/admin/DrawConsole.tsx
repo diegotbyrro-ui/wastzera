@@ -93,10 +93,10 @@ export default function DrawConsole({raffle,selection,onBusyChange}:{raffle:Raff
         {error&&<p className="error" role="alert">{error}</p>}
         <div className="draw-controls">
           <button className="ghost" disabled={loading||busy} onClick={()=>void load()}>Atualizar lista ↻</button>
-          <button className="button draw-button" disabled={busy||!loaded||loading||!people.length||raffle.status!=='closed'||Boolean(result)} onClick={draw}>{busy?'Processando…':result||raffle.status==='drawn'?'Sorteio realizado':'Girar roleta e sortear ✳'}</button>
+          <button className="button draw-button" disabled={busy||!loaded||loading||!people.length||raffle.status!=='closed'||Boolean(raffle.archived_at)||Boolean(result)} onClick={draw}>{busy?'Processando…':result||raffle.status==='drawn'?'Sorteio realizado':'Girar roleta e sortear ✳'}</button>
         </div>
         <DrawMusic playing={musicPlaying} audioRef={audioRef} audioError={audioError} onPlay={playMusic} onStop={stopMusic} onPlayingChange={setMusicPlaying} onError={()=>setAudioError('Não foi possível carregar o áudio.')}/>
-        {raffle.status==='open'&&<p>Encerre as inscrições para liberar o sorteio.</p>}
+        {raffle.status==='open'&&<p>Encerre as inscrições para liberar o sorteio.</p>}{raffle.archived_at&&<p>Arquivado: os dados estão preservados. Para outro giro, use Resetar sorteio; se foi excluído manualmente, restaure-o na lista de arquivados.</p>}
         {result&&settled&&<div className="draw-reset"><button type="button" className="ghost" disabled={busy||loading} onClick={()=>void reset()}>Resetar sorteio</button></div>}
         {history.length>0&&<div className="draw-history"><h4>Histórico de desclassificações</h4>{history.map(h=><article key={h.id}><b>{h.original_draw.winner_alias} · #{h.original_draw.winner_ticket}</b><small>{new Date(h.invalidated_at).toLocaleString('pt-BR',{timeZone:'America/Fortaleza'})}</small></article>)}</div>}
       </aside>

@@ -13,7 +13,7 @@ export default function DrawCenter({raffles}:{raffles:Raffle[]}) {
   return <DrawConsole key={selected.id} raffle={selected} onBusyChange={setBusy} selection={
     <label className="draw-selector">Selecionar sorteio
       <select value={selected.id} disabled={busy} onChange={e=>setSelectedId(e.target.value)}>
-        {available.map(r=><option key={r.id} value={r.id}>{r.title} · {r.prize} · {statusLabel[r.status]}</option>)}
+        {available.map(r=><option key={r.id} value={r.id}>{r.title} · {r.prize} · {r.archived_at?'Arquivado · ':''}{statusLabel[r.status]}</option>)}
       </select>
     </label>
   }/>;
