@@ -10,7 +10,7 @@ const action=z.discriminatedUnion('action',[
   z.object({action:z.enum(['open','close','draw','archive','restore'])}),
   z.object({action:z.literal('video'),youtube_url:youtubeSchema}),
   z.object({action:z.literal('reset'),draw_id:z.string().uuid(),reason:z.string().trim().min(10).max(1000)}),
-  z.object({action:z.literal('edit'),values:z.record(z.unknown())})
+  z.object({action:z.literal('edit'),values:z.record(z.string(),z.unknown())})
 ]);
 export async function POST(req:Request,{params}:{params:Promise<{id:string}>}){
   const blocked=guard(req,'admin-action');if(blocked)return blocked;
